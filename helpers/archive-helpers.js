@@ -15,6 +15,7 @@ exports.paths = {
   'list' : path.join(__dirname, '../archives/sites.txt'),
   'root' : '/',
   'homePage' : '/index.html',
+  'styles' : '/styles.css',
   'loadingPage' : '/loading.html'
 };
 

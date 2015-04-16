@@ -6,30 +6,40 @@ var url = require('url');
 var querystring = require('querystring')
 // require more modules/folders here!
 
-var sendResponse = function(response, data, statusCode){
+var sendResponse = function(response, data, statusCode, contentType){
   statusCode = statusCode || 200;
+  contentType = contentType || 'text/html'
+  httpHelpers.headers['Content-Type'] = contentType;
   response.writeHead(statusCode, httpHelpers.headers)
-  response.end(JSON.stringify(data))
+  //response.write(data);
+  response.end(data)
+}
+
+var serveFile = function(path, res){
+  fs.readFile(path, function(err, data){
+    if(err){
+      sendResponse(res, null, 404)
+    } else {
+      sendResponse(res, data.toString())
+    }
+  })
 }
 
 var actions = {
   "GET": function(req, res){
+    var content;
     var pathName = url.parse(req.url).pathname;
-
-    if (pathName === archive.paths.root){
+    if (pathName === archive.paths.styles){
+      content = 'text/css'
+      pathName = archive.paths.siteAssets + pathName
+    }
+    else if (pathName === archive.paths.root){
       pathName = archive.paths.siteAssets + archive.paths.homePage;
     } else{
       pathName = archive.paths.archivedSites + pathName
     }
 
-    fs.readFile(pathName, function(err, data){
-      if(err){
-        sendResponse(res, null, 404);
-      }
-      else {
-        sendResponse(res, data.toString());
-      }
-    })
+    serveFile(pathName, res, 200, content);
   },
 
   "POST": function(req, res){
@@ -43,7 +53,9 @@ var actions = {
       // write data to sites.txt
       fs.appendFile(archive.paths.list, data, function(err, written, string){
       });
-      sendResponse(res, data, 302);
+
+      var pathName = archive.paths.siteAssets + archive.paths.loadingPage;
+      serveFile(pathName, res);
     })
   }
 }
