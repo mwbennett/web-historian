@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var httpHelpers = require('../web/http-helpers')
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -53,27 +54,53 @@ exports.isUrlInList = function(path){
   return exists;
 };
 
-exports.addUrlToList = function(path){
+exports.addUrlToList = function(data, res){
   var that = this;
-  if (!this.isUrlInList){
-    //write to file
+  fs.appendFile(that.paths.list, data, function(err, written, string){
+
+  });
+  var path = this.paths.siteAssets + this.paths.loadingPage;
+  this.serveFile(path, res);
+};
+
+exports.isUrlArchived = function(site){
+  var path = this.paths.archivedSites + site
+  console.log(path, 'path')
+  fs.exists(path, function(exists){
+    if(exists){
+      return true
+    } else{
+      return false;
+    }
+  })
+};
+
+exports.downloadUrls = function(path, res){
+  if (this.isURLArchived(path)){
+    this.serveFile(path, res)
+  } else {
+    path = this.paths.siteAssets + this.paths.loadingPage;
+    this.serveFile(path, res);
   }
 };
 
-exports.isURLArchived = function(){
-};
-
-exports.downloadUrls = function(){
-};
-
-// NOT FINISHED - NEED TO DETERMINE IF PATH EXISTS IN ARCHIVES
-exports.serveFile = function(path, res){
+exports.serveFile = function(path, res, statusCode, content){
+  var that = this;
   fs.readFile(path, function(err, data){
     if(err){
 
-      sendResponse(res, null, 404)
+      that.sendResponse(res, null, 404)
     } else {
-      sendResponse(res, data.toString())
+      that.sendResponse(res, data.toString(), statusCode, content)
     }
   })
+}
+
+exports.sendResponse = function(response, data, statusCode, contentType){
+  statusCode = statusCode || 200;
+  contentType = contentType || 'text/html'
+  httpHelpers.headers['Content-Type'] = contentType;
+  response.writeHead(statusCode, httpHelpers.headers)
+  //response.write(data);
+  response.end(data)
 }

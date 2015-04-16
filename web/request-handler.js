@@ -6,14 +6,7 @@ var url = require('url');
 var querystring = require('querystring')
 // require more modules/folders here!
 
-var sendResponse = function(response, data, statusCode, contentType){
-  statusCode = statusCode || 200;
-  contentType = contentType || 'text/html'
-  httpHelpers.headers['Content-Type'] = contentType;
-  response.writeHead(statusCode, httpHelpers.headers)
-  //response.write(data);
-  response.end(data)
-}
+
 
 // CHANGE ALL REFERENCES TO SERVEFILE ---> NOW IN ARCHIVE-HELPERS
 
@@ -31,7 +24,7 @@ var actions = {
       pathName = archive.paths.archivedSites + pathName
     }
 
-    serveFile(pathName, res, 200, content);
+    archive.serveFile(pathName, res, 200, content);
   },
 
   "POST": function(req, res){
@@ -42,12 +35,15 @@ var actions = {
     });
     req.on('end', function(){
       data = querystring.parse(data).url +'\n';
-      // write data to sites.txt
-      fs.appendFile(archive.paths.list, data, function(err, written, string){
-      });
+      if (archive.isUrlInList(data)){
+        archive.downloadUrls(data, res);
+        alert('serving', data)
+      } else {
+        archive.addUrlToList(data, res)
 
-      var pathName = archive.paths.siteAssets + archive.paths.loadingPage;
-      serveFile(pathName, res);
+
+      }
+
     })
   }
 }
