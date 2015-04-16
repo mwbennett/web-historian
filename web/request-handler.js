@@ -15,15 +15,7 @@ var sendResponse = function(response, data, statusCode, contentType){
   response.end(data)
 }
 
-var serveFile = function(path, res){
-  fs.readFile(path, function(err, data){
-    if(err){
-      sendResponse(res, null, 404)
-    } else {
-      sendResponse(res, data.toString())
-    }
-  })
-}
+// CHANGE ALL REFERENCES TO SERVEFILE ---> NOW IN ARCHIVE-HELPERS
 
 var actions = {
   "GET": function(req, res){

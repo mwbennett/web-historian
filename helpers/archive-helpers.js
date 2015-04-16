@@ -41,10 +41,23 @@ exports.readListOfUrls = function(callback){
   })
 };
 
-exports.isUrlInList = function(){
+exports.isUrlInList = function(path){
+  var exists = false;
+  this.readListOfUrls(function(result){
+    _.each(result, function(val){
+      if(val === path){
+        exists = true
+      }
+    })
+  })
+  return exists;
 };
 
-exports.addUrlToList = function(){
+exports.addUrlToList = function(path){
+  var that = this;
+  if (!this.isUrlInList){
+    //write to file
+  }
 };
 
 exports.isURLArchived = function(){
@@ -52,3 +65,15 @@ exports.isURLArchived = function(){
 
 exports.downloadUrls = function(){
 };
+
+// NOT FINISHED - NEED TO DETERMINE IF PATH EXISTS IN ARCHIVES
+exports.serveFile = function(path, res){
+  fs.readFile(path, function(err, data){
+    if(err){
+
+      sendResponse(res, null, 404)
+    } else {
+      sendResponse(res, data.toString())
+    }
+  })
+}
