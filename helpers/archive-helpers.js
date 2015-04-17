@@ -42,16 +42,17 @@ exports.readListOfUrls = function(callback){
   })
 };
 
-exports.isUrlInList = function(path){
+exports.isUrlInList = function(path, callback){
   var exists = false;
   this.readListOfUrls(function(result){
     _.each(result, function(val){
       if(val === path){
+      console.log('data', val.toString())
         exists = true
       }
     })
+    callback(exists);
   })
-  return exists;
 };
 
 exports.addUrlToList = function(data, res){
@@ -63,15 +64,11 @@ exports.addUrlToList = function(data, res){
   this.serveFile(path, res);
 };
 
-exports.isUrlArchived = function(site){
-  var path = this.paths.archivedSites + site
-  console.log(path, 'path')
+exports.isUrlArchived = function(site, callback){
+  var path = this.paths.archivedSites + '/' + site
+  console.log ('exists', path)
   fs.exists(path, function(exists){
-    if(exists){
-      return true
-    } else{
-      return false;
-    }
+    callback(exists)
   })
 };
 
@@ -84,14 +81,15 @@ exports.downloadUrls = function(path, res){
   }
 };
 
+
 exports.serveFile = function(path, res, statusCode, content){
   var that = this;
   fs.readFile(path, function(err, data){
+    console.log('path: ', path)
     if(err){
-
       that.sendResponse(res, null, 404)
     } else {
-      that.sendResponse(res, data.toString(), statusCode, content)
+      that.sendResponse(res, data, statusCode, content)
     }
   })
 }
@@ -104,3 +102,12 @@ exports.sendResponse = function(response, data, statusCode, contentType){
   //response.write(data);
   response.end(data)
 }
+
+// exports.sendRedirect = function(response, location, contentType, status){
+//   status = status || 302;
+//   contentType = contentType || 'text/html'
+//   httpHelpers.headers['Content-Type'] = contentType;
+//   response.writeHead(status, {Location: location});
+//   response.end();
+// };
+

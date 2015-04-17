@@ -16,8 +16,9 @@ module.exports = function(){
   console.log('is this working?')
   archive.readListOfUrls(function(websites){
     _.each(websites, function(site){
-      var path = site.substring(0, site.length -3) +'html'
-      path = archive.paths.archivedSites + '/' + path
+      console.log('site', site)
+      var path = archive.paths.archivedSites + '/' + site
+      console.log(path)
       fs.exists(path, function(exists){
         if (!exists){
           fs.writeFile(path, '', 'utf8', function(err){

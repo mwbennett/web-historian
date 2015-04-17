@@ -34,15 +34,23 @@ var actions = {
       data += chunk;
     });
     req.on('end', function(){
-      data = querystring.parse(data).url +'\n';
-      if (archive.isUrlInList(data)){
-        archive.downloadUrls(data, res);
-        alert('serving', data)
-      } else {
-        archive.addUrlToList(data, res)
+      data = querystring.parse(data).url;
+      archive.isUrlInList(data, function(exists){
+        if(exists){
+          archive.isUrlArchived(data, function(found){
+            if(found){
+              data = archive.paths.archivedSites + '/' + data
+              archive.serveFile(data, res);
+            } else {
+              data = archive.paths.siteAssets + archive.paths.loadingPage
+              archive.serveFile(data, res)
+            }
+          })
+        } else {
+          archive.addUrlToList(data + '\n', res);
+        }
 
-
-      }
+      })
 
     })
   }
